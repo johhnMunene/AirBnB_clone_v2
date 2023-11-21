@@ -1,79 +1,64 @@
 #!/usr/bin/python3
-""" Define the FileStorage class.
-"""
-
+"""This module defines a class to manage file storage for hbnb clone"""
 import json
-from models.base_model import BaseModel
-from datetime import datetime
 
 
 class FileStorage:
-    """ This class serializes and deserializes instances
-        to and from JSON format.
-    """
-    __file_path = "file.json"
+    """This class manages storage of hbnb models in JSON format"""
+    __file_path = 'file.json'
     __objects = {}
 
     def all(self, cls=None):
-        """ Returns a dictionary of __objects.
-        """
-        if cls is None:
-            return self.__objects
+        """Returns a dictionary of models currently in storage"""
+        if cls:
+            class_objs = {}
+            for key, val in FileStorage.__objects.items():
+                if isinstance(val, cls):
+                    class_objs[key] = val
+            return class_objs
         else:
-            filtered_objects = {}
-            for key, value in self.__objects.items():
-                if isinstance(value, cls):
-                    filtered_objects[key] = value
-            return filtered_objects
+            return FileStorage.__objects
 
     def new(self, obj):
-        """ Sets in __objects the obj with key <obj class name>.id.
-        """
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        self.__objects[key] = obj
+        """Adds new object to storage dictionary"""
+        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
-        """ Serializes __objects to the JSON file.
-        """
-        serialized_objects = {}
-        for key, value in self.__objects.items():
-            serialized_objects[key] = value.to_dict()
-        with open(self.__file_path, 'w') as file:
-            json.dump(serialized_objects, file)
+        """Saves storage dictionary to file"""
+        with open(FileStorage.__file_path, 'w') as f:
+            temp = {}
+            temp.update(FileStorage.__objects)
+            for key, val in temp.items():
+                temp[key] = val.to_dict()
+            json.dump(temp, f)
 
     def reload(self):
-        """ Deserializes the JSON file to __objects.
-        """
+        """Loads storage dictionary from file"""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
+        classes = {
+            'BaseModel': BaseModel, 'User': User, 'Place': Place,
+            'State': State, 'City': City, 'Amenity': Amenity,
+            'Review': Review
+        }
         try:
-            with open(self.__file_path, 'r') as file:
-                deserialized_objects = json.load(file)
-                for key, value in deserialized_objects.items():
-                    class_name, obj_id = key.split('.')
-                    obj_dict = value
-                    obj_dict['__class__'] = class_name
-                    obj_dict['created_at'] = datetime.strptime(
-                        obj_dict['created_at'], '%Y-%m-%dT%H:%M:%S.%f')
-                    if 'updated_at' in obj_dict:
-                        obj_dict['updated_at'] = datetime.strptime(
-                            obj_dict['updated_at'], '%Y-%m-%dT%H:%M:%S.%f')
-                    self.new(BaseModel(**obj_dict))
+            temp = {}
+            with open(FileStorage.__file_path, 'r') as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
 
     def delete(self, obj=None):
-        """ Deletes obj from __objects if it's inside.
-            If obj is equal to None, the method does nothing.
-        """
-        if obj is not None:
-            key = "{}.{}".format(obj.__class__.__name__, obj.id)
-            if key in self.__objects:
-                del self.__objects[key]
-
-    def update(self, obj):
-        """ Updates an object in __objects.
-        """
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        if key in self.__objects:
-            self.__objects[key] = obj
-        else:
-            raise ValueError("Object not found in __objects.")
+        """Deletes an object"""
+        if (obj):
+            obj_id = obj.id
+            key = '{}.{}'.format(obj.__class__.__name__, obj_id)
+            if key in FileStorage.__objects:
+                del FileStorage.__objects[key]
