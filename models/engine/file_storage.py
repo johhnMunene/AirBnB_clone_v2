@@ -6,6 +6,7 @@ import json
 from models.base_model import BaseModel
 from datetime import datetime
 
+
 class FileStorage:
     """ This class serializes and deserializes instances
         to and from JSON format.
@@ -76,4 +77,3 @@ class FileStorage:
             self.__objects[key] = obj
         else:
             raise ValueError("Object not found in __objects.")
-
