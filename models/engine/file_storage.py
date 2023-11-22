@@ -16,12 +16,12 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage
+        """Returns a dictionary of models currently in storage.
 
         Args:
             cls (class, optional): If specified, filters the result to include
                 only objects of the specified class.
-        
+
         Returns:
             dict: A dictionary containing objects in storage.
         """
@@ -32,7 +32,7 @@ class FileStorage:
                 cls_dict = {k: v for k,
                             v in self.__objects.items() if isinstance(v, cls)}
                 return cls_dict
-            return FileStorage.__objects
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -48,26 +48,27 @@ class FileStorage:
             json.dump(temp, f)
 
     def reload(self):
-        """Loads storage dictionary from file"""
+        """Loads storage dictionary from file."""
         classes = {
-            'BaseModel': BaseModel, 'User': User, 'Place': Place,
-            'State': State, 'City': City, 'Amenity': Amenity,
-            'Review': Review
-        }
+                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                    'State': State, 'City': City, 'Amenity': Amenity,
+                    'Review': Review
+                  }
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                    self.all()[key] = classes[val['__class__']](**val)
+                        self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
         except json.decoder.JSONDecodeError:
             pass
 
     def delete(self, obj=None):
-        """Deletes obj from __objects if it’s inside - if obj is equal to None,
-            the method should not do anything
+        """
+         Delete obj from __objects if it’s inside - if obj is equal to None,
+           the method should not do anything
         """
         if obj is None:
             return
