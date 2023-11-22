@@ -2,7 +2,7 @@
 """
 
 """
-# handles the details of how to connect 
+# handles the details of how to connect
 # to the database and execute SQL commands
 from sqlalchemy import create_engine
 from os import getenv
@@ -23,8 +23,7 @@ class DBStorage:
     """
     __engine = None
     __session = None
-    
-    
+
     def __init__(self) -> None:
         username = getenv("HBNB_MYSQL_USER")
         password = getenv("HBNB_MYSQL_PWD")
@@ -61,7 +60,6 @@ class DBStorage:
             obj_dict[key] = obj
         return obj_dict
 
-
     def new(self, obj):
         """
         new
@@ -73,8 +71,7 @@ class DBStorage:
         """"
         save
         """
-        self.__session.commit()    
-
+        self.__session.commit()
 
     def delete(self, obj=None):
         """
