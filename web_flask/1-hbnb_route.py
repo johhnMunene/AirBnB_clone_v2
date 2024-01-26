@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-""" 
-Web application must be listening on 0.0.0.0, port 5000
+"""Web application must be listening on 0.0.0.0, port 5000
 Routes:
     /: display “Hello HBNB!”
     /hbnb: display “HBNB”
